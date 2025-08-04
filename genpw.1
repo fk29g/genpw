@@ -1,0 +1,39 @@
+.TH GENPW 1 2025-08-04
+
+.SH NAME
+genpw \- minimal password generator
+
+.SH SYNOPSIS
+.B genpw
+[\fB\-s\fR]
+[\fB\-n\fR]
+[\fB\-c\fR]
+[\fIlength\fR]
+
+.SH DESCRIPTION
+.B genpw
+generates pseudorandom passwords using /dev/urandom.
+.PP
+Running it without arguments produces a password consisting of 15 upper\- and lowercase letters.
+
+.SH OPTIONS
+.TP
+.BR \-s
+include at least one special character
+.TP
+.BR \-n
+include at least one number
+.TP
+.BR \-c
+copy to clipboard
+.TP
+.BR \-h
+print help
+
+.SH ARGUMENTS
+.SS "length"
+\fBlength\fR in digits
+
+.SH SEE ALSO
+.TP
+random man page <https://www.man7.org/linux/man-pages/man4/random.4.html>
