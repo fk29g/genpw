@@ -15,6 +15,7 @@
 set -e
 
 PROGRAM="${0##*/}"
+PLATFORM="$XDG_SESSION_TYPE"
 
 print_help() {
     echo "Usage: $PROGRAM [-s] [-n] [length]"
@@ -22,6 +23,7 @@ print_help() {
     echo "Flags:"
     echo "  -s  include special characters"
     echo "  -n  include numbers"
+    echo "  -c  copy to clipboard"
     echo "  -h  print help"
 }
 
@@ -30,7 +32,9 @@ tr_chars="a-zA-Z"
 num_chars="0-9"
 special_chars="\\\\_\-@$%=!?.,;:#\"\'<>(){}[]&|\/^~"
 
-while getopts ":hsn" flag; do
+cflag=""
+
+while getopts ":hsnc" flag; do
     case "${flag}" in
         h)
             print_help
@@ -41,6 +45,9 @@ while getopts ":hsn" flag; do
             ;;
         n)
             tr_chars+="$num_chars"
+            ;;
+        c)
+            cflag="true"
             ;;
         \?)
             echo "Invalid flag: -$OPTARG"
@@ -65,5 +72,37 @@ if [[ -n $1 ]]; then
     fi
 fi
 
-tr -cd $tr_chars < /dev/urandom | head -c $pw_length
+password=$(tr -cd $tr_chars < /dev/urandom | head -c $pw_length)
+
+if [[ -n $cflag ]]; then
+    case "$PLATFORM" in
+        "wayland")
+            if [[ -n $(command -v wl-copy) ]]; then
+                wl-copy "$password"
+                echo "Password copied to clipboard."
+            else
+                echo "Unable to copy to clipboard. Is wl-clipboard installed?" >&2
+                exit 1
+            fi
+            ;;
+        "x11")
+            if [[ -n $(command -v xclip) ]]; then
+                echo "$password" | xclip
+                echo "Password copied to clipboard."
+            else
+                echo "Unable to copy to clipboard. Is xclip installed?" >&2
+                exit 1
+            fi
+            ;;
+        *)
+            echo "Unable to copy to clipboard." >&2
+            echo "Session type (X11/Wayland) couldn't be determined." >&2
+            echo "Check if XDG_SESSION_TYPE is correctly set." >&2
+            exit 1
+            ;;
+    esac
+    exit 0
+fi
+
+echo "${password}"
 exit 0
