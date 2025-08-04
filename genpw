@@ -27,12 +27,21 @@ print_help() {
     echo "  -h  print help"
 }
 
+password=""
 pw_length=15
 tr_chars="a-zA-Z"
 num_chars="0-9"
+num_chars_regex="[0-9]"
 special_chars="\\\\_\-@$%=!?.,;:#\"\'<>(){}[]&|\/^~"
+special_chars_regex="[]\\_\-\@$%=!?.,;:#\"\'<>(){}\[&|/\^~]"
 
-cflag=""
+generate() {
+    password=$(tr -cd $tr_chars < /dev/urandom | head -c $pw_length)
+}
+
+sflag=false
+nflag=false
+cflag=false
 
 while getopts ":hsnc" flag; do
     case "${flag}" in
@@ -41,13 +50,15 @@ while getopts ":hsnc" flag; do
             exit 0
             ;;
         s)
+            sflag=true
             tr_chars+="$special_chars"
             ;;
         n)
+            nflag=true
             tr_chars+="$num_chars"
             ;;
         c)
-            cflag="true"
+            cflag=true
             ;;
         \?)
             echo "Invalid flag: -$OPTARG"
@@ -72,9 +83,29 @@ if [[ -n $1 ]]; then
     fi
 fi
 
-password=$(tr -cd $tr_chars < /dev/urandom | head -c $pw_length)
+generate
 
-if [[ -n $cflag ]]; then
+if [[ $pw_length -gt 2 ]]; then
+    if $sflag && $nflag; then
+        while ! [[ "$password" =~ $special_chars_regex && "$password" =~ $num_chars_regex ]]; do
+            generate
+        done
+    fi
+
+    if $sflag && ! $nflag; then
+        while ! [[ "$password" =~ $special_chars_regex ]]; do
+            generate
+        done
+    fi
+
+    if ! $sflag && $nflag; then
+        while ! [[ "$password" =~ $num_chars_regex ]]; do
+            generate
+        done
+    fi
+fi
+
+if $cflag; then
     case "$PLATFORM" in
         "wayland")
             if [[ -n $(command -v wl-copy) ]]; then
