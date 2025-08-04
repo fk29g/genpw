@@ -18,13 +18,16 @@ PROGRAM="${0##*/}"
 PLATFORM="$XDG_SESSION_TYPE"
 
 print_help() {
-    echo "Usage: $PROGRAM [-s] [-n] [length]"
+    echo "Usage: $PROGRAM [-s] [-n] [-c] [length]"
     echo ""
     echo "Flags:"
-    echo "  -s  include special characters"
-    echo "  -n  include numbers"
+    echo "  -s  include at least one special character"
+    echo "  -n  include at least one number"
     echo "  -c  copy to clipboard"
     echo "  -h  print help"
+    echo ""
+    echo "Arguments:"
+    echo "  length - length in digits"
 }
 
 password=""
