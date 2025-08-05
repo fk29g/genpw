@@ -114,6 +114,8 @@ if $cflag; then
             if [[ -n $(command -v wl-copy) ]]; then
                 wl-copy "$password"
                 echo "Password copied to clipboard."
+                echo "Clearing in 60 seconds."
+                $(sleep 60; wl-copy --clear) &
             else
                 echo "Unable to copy to clipboard. Is wl-clipboard installed?" >&2
                 exit 1
