@@ -123,8 +123,10 @@ if $cflag; then
             ;;
         "x11")
             if [[ -n $(command -v xclip) ]]; then
-                echo "$password" | xclip
+                echo -n "$password" | xclip -selection clipboard
                 echo "Password copied to clipboard."
+                echo "Clearing in 60 seconds."
+                $(sleep 60; echo -n "" | xclip -selection clipboard) &
             else
                 echo "Unable to copy to clipboard. Is xclip installed?" >&2
                 exit 1
